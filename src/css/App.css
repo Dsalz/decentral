@@ -1,0 +1,28 @@
+
+/* For general styles used across pages and components */
+
+.centralised-items-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.h-100 {
+    height: 100%;
+}
+
+.blue-bg {
+    background: #0066f5;
+}
+
+.blue-shadow {
+    box-shadow: 0 59px 51px -34px rgba(0,103,245,0.3);
+}
+
+.error-text {
+    color: #f00;
+}

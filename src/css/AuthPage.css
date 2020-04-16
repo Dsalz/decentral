@@ -1,0 +1,41 @@
+.auth-page-section {
+    background: #fff;
+    min-height: 80vh;
+    flex-wrap: wrap;
+}
+
+.auth-info-section,
+.connect-btn {
+    font-size: 20px;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.connect-btn {
+    cursor: pointer;
+    padding: 15px 20px;
+}
+
+.auth-info-section{
+    padding: 20px;
+}
+
+.error-text {
+    margin-top: 10px;
+}
+
+.no-auth-div {
+    text-align: center;
+}
+
+@media screen and (max-width: 600px) {
+    .auth-info-section {
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .auth-info-section span{
+        display: block
+    }
+}

@@ -1,0 +1,7 @@
+.loader-wrapper {
+  min-height: 80vh;
+}
+
+.loader-wrapper svg circle {
+  stroke: #0066f5;
+}
