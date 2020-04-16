@@ -48,6 +48,12 @@ class AuthPage extends Component {
         loading: true
       });
 
+      web3Modal.on("close", () => {
+        this.setState({
+          loading: false
+        });
+      });
+
       const provider = await web3Modal.connect();
 
       const web = new Web3(provider);
