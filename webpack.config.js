@@ -17,7 +17,12 @@ const cssPlugin = new MiniCSSExtractPlugin({
 
 const dotEnvPlugin = new Dotenv();
 const webpackEnvPlugins = new webpack.DefinePlugin({
-  "process.env.PORTIS_KEY": JSON.stringify(process.env.PORTIS_KEY)
+  "process.env.PORTIS_KEY": JSON.stringify(process.env.PORTIS_KEY),
+  "process.env.DATABASE_USER": JSON.stringify(process.env.DATABASE_USER),
+  "process.env.DATABASE_PASSWORD": JSON.stringify(
+    process.env.DATABASE_PASSWORD
+  ),
+  "process.env.ENVIRONMENT": JSON.stringify(process.env.ENVIRONMENT)
 });
 
 module.exports = {

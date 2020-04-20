@@ -5,20 +5,41 @@
 }
 
 .auth-info-section,
-.connect-btn {
+.connect-btn,
+.deposit-btn,
+.transaction-section button
+.transaction-section,
+.transaction-section input {
+  border-radius: 5px;
+}
+
+.auth-info-section,
+.connect-btn,
+.deposit-btn {
     font-size: 20px;
     border: none;
     color: #fff;
-    border-radius: 5px;
 }
 
-.connect-btn {
+.auth-info-section,
+.transaction-section{
+    box-sizing: border-box;
+    min-width: 60vw;
+}
+
+.connect-btn,
+.deposit-btn {
     cursor: pointer;
     padding: 15px 20px;
 }
 
 .auth-info-section{
     padding: 20px;
+    flex-wrap: wrap;
+}
+
+.auth-info-section h5{
+    margin: 40px 0 0;
 }
 
 .error-text {
@@ -29,13 +50,63 @@
     text-align: center;
 }
 
+.transaction-section {
+    background: #fff;
+    text-align: center;
+    border-radius: 5px;
+    padding: 25px 0;
+    box-shadow: 0 0.625rem 2.5rem 0 rgba(198, 203, 222, 0.45);
+    width: 500px;
+}
+
+.transaction-section input{
+    display: block;
+    width: 80%;
+    border: none;
+    padding: 20px;
+    margin: 30px auto;
+    font-size: 16px;
+    border: .6px solid #c9c9c9;
+}
+
+.transaction-currency-div button {
+    padding: 5px;
+    border: 1px solid #0066f5;
+    color: #0066f5;
+    background: #fff;
+    cursor: pointer;
+}
+
+.transaction-currency-div button,
+.transaction-section input
+{
+    outline: none;
+}
+
+.transaction-currency-div button.active {
+    color: #fff;
+    background: #0066f5;
+}
+
+.transaction-section .info-text {
+  margin: -20px 0 20px;
+}
+
 @media screen and (max-width: 600px) {
     .auth-info-section {
         text-align: center;
+    }
+
+    .auth-info-section,
+    .transaction-section input {
         font-size: 14px;
     }
 
     .auth-info-section span{
         display: block
+    }
+
+    .transaction-section {
+        width: 345px;
     }
 }
