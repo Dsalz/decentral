@@ -98,25 +98,30 @@ class AuthPage extends Component {
         ? provider._portis._selectedAddress
         : provider.selectedAddress;
 
-      const weiEthBalance = await web.eth.getBalance(address);
-      const ethBalance = web.utils.fromWei(weiEthBalance);
       const timeStamp = String(Date.now());
       const message = `0x${timeStamp.toString("hex")}`;
-      const signature = await web.eth.sign(message, address);
-      const loginResponse = await axios.post("/api/users/login", {
-        signature,
-        message
-      });
-      const { token } = loginResponse.data;
-      localStorage.setItem(this.tokenKey, token);
+
+      const signature = await web.eth.personal.sign(message, address);
 
       const daiContract = new web.eth.Contract(
         getTokenAbi(),
         "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
       );
+      const [loginResponse, weiEthBalance, weiDaiBalance] = await Promise.all([
+        axios.post("/api/users/login", {
+          signature,
+          message
+        }),
+        web.eth.getBalance(address),
+        daiContract.methods.balanceOf(address).call()
+      ]);
 
-      const weiDaiBalance = await daiContract.methods.balanceOf(address).call();
+      const ethBalance = web.utils.fromWei(weiEthBalance);
       const daiBalance = web.utils.fromWei(weiDaiBalance);
+
+      const { token } = loginResponse.data;
+
+      localStorage.setItem(this.tokenKey, token);
 
       this.setState({
         isAuthenticated: true,
@@ -169,11 +174,13 @@ class AuthPage extends Component {
 
     const isEther = transferCurrency === "ether";
     const value = web3Instance.utils.toWei(transferAmount);
+    const { address } = user;
     try {
       let receipt;
+
       if (isEther) {
         receipt = await web3Instance.eth.sendTransaction({
-          from: user.address,
+          from: address,
           to: transferAddress,
           value
         });
@@ -182,13 +189,21 @@ class AuthPage extends Component {
           .transferFrom(user.address, transferAddress, value)
           .call();
       }
-      const { ethBalance, daiBalance } = user;
+
+      const [weiEthBalance, weiDaiBalance] = await Promise.all([
+        web3Instance.eth.getBalance(address),
+        daiContract.methods.balanceOf(address).call()
+      ]);
+
+      const ethBalance = web3Instance.utils.fromWei(weiEthBalance);
+      const daiBalance = web3Instance.utils.fromWei(weiDaiBalance);
+
       this.setState({
         transferLoading: false,
         user: {
           ...user,
-          ethBalance: isEther ? ethBalance - transferAmount : ethBalance,
-          daiBalance: isEther ? daiBalance : daiBalance - transferAmount
+          ethBalance,
+          daiBalance
         },
         receipt
       });
