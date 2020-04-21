@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const baseURL =
-  process.env.ENVIRONMENT === "development"
+  process.env.NODE_ENV === "development"
     ? "http://localhost:3080"
     : "https://decentral-challenge.herokuapp.com";
 
