@@ -46,7 +46,12 @@ class AuthPage extends Component {
     const { transferCurrency, user } = this.state;
     const { ethBalance, daiBalance } = user;
     let { name, value } = e.target;
-    if (name === "transferAmount") {
+    const isTransferAmount = name === "transferAmount";
+    const isInValidAmount = /\D/g.test(value.replace(".", ""));
+    if (isTransferAmount && isInValidAmount) {
+      return;
+    }
+    if (isTransferAmount) {
       const max = transferCurrency === "ether" ? ethBalance : daiBalance;
       value = value > max ? max : value;
     }
@@ -311,7 +316,7 @@ class AuthPage extends Component {
                   </div>
                   <div>
                     <input
-                      type="number"
+                      type="text"
                       onChange={this.handleChange}
                       value={transferAmount}
                       placeholder={`Enter amount of ${transferCurrency} to send. Max (${this.getTransferMax()})`}
