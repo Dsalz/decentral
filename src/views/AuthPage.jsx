@@ -33,7 +33,8 @@ class AuthPage extends Component {
     transferAmount: "",
     transferCurrency: "ether",
     transferLoading: false,
-    transferError: ""
+    transferError: "",
+    tokenRefreshInterval: null
   };
 
   /**
@@ -74,16 +75,7 @@ class AuthPage extends Component {
         this.setState({
           loading: true
         });
-        const refreshTokenResponse = await axios.get(
-          "/api/users/refresh-token",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-        const user = refreshTokenResponse.data;
-        localStorage.setItem(this.tokenKey, user.token);
+        this.refreshToken();
         this.connectAccount({ validToken: true });
       } catch (e) {
         localStorage.removeItem(this.tokenKey);
@@ -91,6 +83,34 @@ class AuthPage extends Component {
           loading: false
         });
       }
+    }
+  };
+
+  /**
+   * @method componentWillUnmount
+   * @description Lifecycle method fired when component is about to unmount
+   * @returns {undefined}
+   */
+  componentWillUnmount = async () => {
+    const { tokenRefreshInterval } = this.state;
+    clearInterval(tokenRefreshInterval);
+  };
+
+  /**
+   * @method refreshToken
+   * @description Function for refreshing token
+   * @returns {undefined}
+   */
+  refreshToken = async () => {
+    const token = localStorage.getItem(this.tokenKey);
+    if (token) {
+      const refreshTokenResponse = await axios.get("/api/users/refresh-token", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const user = refreshTokenResponse.data;
+      localStorage.setItem(this.tokenKey, user.token);
     }
   };
 
@@ -162,6 +182,8 @@ class AuthPage extends Component {
       const ethBalance = web.utils.fromWei(weiEthBalance);
       const daiBalance = web.utils.fromWei(weiDaiBalance);
 
+      const tokenRefreshInterval = setInterval(this.refreshToken, 45000);
+
       this.setState({
         isAuthenticated: true,
         user: {
@@ -171,10 +193,10 @@ class AuthPage extends Component {
         },
         loading: false,
         web3Instance: web,
-        daiContract
+        daiContract,
+        tokenRefreshInterval
       });
     } catch (e) {
-      console.log(e);
       return this.setState({
         error: e?.response?.data?.message || "Could not authenticate user",
         loading: false
