@@ -8,7 +8,7 @@ const secretKey = process.env.SECRET_KEY;
 export default {
   createToken: user =>
     new Promise((resolve, reject) => {
-      jwt.sign({ user }, secretKey, (err, token) => {
+      jwt.sign({ user }, secretKey, { expiresIn: 60 }, (err, token) => {
         if (err) {
           reject(err);
         }

@@ -63,11 +63,44 @@ class AuthPage extends Component {
   };
 
   /**
-   * @method connectAccount
-   * @description Method to launch web3 modal to connect account
+   * @method componentDidMount
+   * @description Lifecycle method fired when component mounts
    * @returns {undefined}
    */
-  connectAccount = async () => {
+  componentDidMount = async () => {
+    const token = localStorage.getItem(this.tokenKey);
+    if (token) {
+      try {
+        this.setState({
+          loading: true
+        });
+        const refreshTokenResponse = await axios.get(
+          "/api/users/refresh-token",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+        const user = refreshTokenResponse.data;
+        localStorage.setItem(this.tokenKey, user.token);
+        this.connectAccount({ validToken: true });
+      } catch (e) {
+        localStorage.removeItem(this.tokenKey);
+        this.setState({
+          loading: false
+        });
+      }
+    }
+  };
+
+  /**
+   * @method connectAccount
+   * @description Method to launch web3 modal to connect account
+   * @param {boolean} validToken - field representing if user has valid token locally
+   * @returns {undefined}
+   */
+  connectAccount = async ({ validToken }) => {
     try {
       const providerOptions = {
         portis: {
@@ -103,31 +136,31 @@ class AuthPage extends Component {
         ? provider._portis._selectedAddress
         : provider.selectedAddress;
 
-      const timeStamp = String(Date.now());
-      const message = `0x${timeStamp}`;
-
-      const signature = await web.eth.personal.sign(message, address, "");
-
       const daiContract = new web.eth.Contract(
         getTokenAbi(),
         "0xc4375b7de8af5a38a93548eb8453a498222c4ff2"
       );
-      const [loginResponse, weiEthBalance, weiDaiBalance] = await Promise.all([
-        axios.post("/api/users/login", {
+      if (!validToken) {
+        const timeStamp = String(Date.now());
+        const message = `0x${timeStamp}`;
+
+        const signature = await web.eth.personal.sign(message, address, "");
+        const loginResponse = await axios.post("/api/users/login", {
           signature,
           message,
           address
-        }),
+        });
+        const { token } = loginResponse.data;
+        localStorage.setItem(this.tokenKey, token);
+      }
+
+      const [weiEthBalance, weiDaiBalance] = await Promise.all([
         web.eth.getBalance(address),
         daiContract.methods.balanceOf(address).call()
       ]);
 
       const ethBalance = web.utils.fromWei(weiEthBalance);
       const daiBalance = web.utils.fromWei(weiDaiBalance);
-
-      const { token } = loginResponse.data;
-
-      localStorage.setItem(this.tokenKey, token);
 
       this.setState({
         isAuthenticated: true,
@@ -141,6 +174,7 @@ class AuthPage extends Component {
         daiContract
       });
     } catch (e) {
+      console.log(e);
       return this.setState({
         error: e?.response?.data?.message || "Could not authenticate user",
         loading: false
