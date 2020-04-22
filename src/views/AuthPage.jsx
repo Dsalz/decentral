@@ -99,9 +99,9 @@ class AuthPage extends Component {
         : provider.selectedAddress;
 
       const timeStamp = String(Date.now());
-      const message = `0x${timeStamp.toString("hex")}`;
+      const message = `0x${timeStamp}`;
 
-      const signature = await web.eth.personal.sign(message, address);
+      const signature = await web.eth.personal.sign(message, address, "");
 
       const daiContract = new web.eth.Contract(
         getTokenAbi(),
@@ -110,7 +110,8 @@ class AuthPage extends Component {
       const [loginResponse, weiEthBalance, weiDaiBalance] = await Promise.all([
         axios.post("/api/users/login", {
           signature,
-          message
+          message,
+          address
         }),
         web.eth.getBalance(address),
         daiContract.methods.balanceOf(address).call()
@@ -136,7 +137,7 @@ class AuthPage extends Component {
       });
     } catch (e) {
       return this.setState({
-        error: "Could not authenticate user",
+        error: e?.response?.data?.message || "Could not authenticate user",
         loading: false
       });
     }
